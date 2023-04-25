@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        registry = "211223789150.dkr.ecr.us-east-2.amazonaws.com/my-python-repo"
+        registry = "027476539366.dkr.ecr.ap-south-1.amazonaws.com/eks-testing-new"
     }
     
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/akannan1087/myPythonDockerRepo']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/pravesh805/springboot-app']]])
             }
         }
     
@@ -23,8 +23,8 @@ pipeline {
         stage ("docker push") {
          steps {
              script {
-                sh "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 211223789150.dkr.ecr.us-east-2.amazonaws.com"
-                sh "docker push 211223789150.dkr.ecr.us-east-2.amazonaws.com/my-python-repo"
+                sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 027476539366.dkr.ecr.ap-south-1.amazonaws.com"
+                sh "docker push 027476539366.dkr.ecr.ap-south-1.amazonaws.com/eks-testing-new:latest"
                  
              }
            }   
@@ -32,7 +32,7 @@ pipeline {
         
         stage ("Kube Deploy") {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', serverUrl: '') {
+                withKubeConfig(caCertificate: '', clusterName: 'eks-demo', contextName: '', credentialsId: 'K8S', namespace: '', serverUrl: '') {
                  sh "kubectl apply -f eks-deploy-from-ecr.yaml"
                 }
             }
